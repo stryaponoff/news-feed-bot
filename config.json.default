@@ -1,4 +1,5 @@
 {
   "token": "TELEGRAM-BOT-TOKEN",
+  "vk_token": "VK.COM-APP-TOKEN",
   "channel_name": "@channel_name"
 }

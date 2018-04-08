@@ -8,6 +8,39 @@ from telegram.ext import Updater, CommandHandler
 from telegram.parsemode import ParseMode
 
 
+def singleton(class_):
+    instances = {}
+
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+
+    return getinstance
+
+
+@singleton
+class App:
+    """ Singleton implements through-app functionality """
+    __instance = None
+    API_TOKEN = None
+    VK_TOKEN = None
+    CHANNEL_NAME = None
+
+    def __init__(self, config_path):
+        """ Load settings from config file """
+        try:
+            f_config = open(config_path, 'r')
+            config = json.loads(f_config.read())
+            self.API_TOKEN = config['token']
+            self.VK_TOKEN = config['vk_token']
+            self.CHANNEL_NAME = config['channel_name']
+            f_config.close()
+        except json.JSONDecodeError:
+            logger.fatal('JSON decode error in config.json')
+            exit()
+
+
 def read_time():
     """ Read last updated timestamp from file """
     try:
@@ -39,16 +72,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-# Load settings from config file
-f_config = open('config.json', 'r')
-try:
-    config = json.loads(f_config.read())
-    API_TOKEN = config['token']
-    CHANNEL_NAME = config['channel_name']
-    f_config.close()
-except json.JSONDecodeError:
-    logger.fatal('JSON decode error in config.json')
-
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
@@ -67,8 +90,11 @@ def error(bot, update, error):
 
 
 def main():
+    # Create an App instance
+    app = App('config.json')
+
     # Create the Updater and pass it your bot's token.
-    updater = Updater(API_TOKEN)
+    updater = Updater(app.API_TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -89,11 +115,19 @@ def main():
         # last_updated = write_time()
         last_updated = time.localtime()
 
+    vktest = Source.Vk(app, 'БК55', 'bk55ru', last_updated)
+    for post in vktest.posts:
+        updater.bot.send_message(chat_id=app.CHANNEL_NAME,
+                                 text=f'*{post.title}*\n\n_Источник:_ «{vktest.name}»\n{post.url}',
+                                 parse_mode=ParseMode.MARKDOWN)
+
     kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)
     for post in kvnews.posts:
-        updater.bot.send_message(chat_id=CHANNEL_NAME,
+        updater.bot.send_message(chat_id=app.CHANNEL_NAME,
                                  text=f'*{post.title}*\n\n_Источник:_ «{kvnews.name}»\n{post.url}',
                                  parse_mode=ParseMode.MARKDOWN)
+
+    # TODO: Implement single posts queue for send
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

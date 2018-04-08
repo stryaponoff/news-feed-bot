@@ -1,5 +1,6 @@
 import time
 import feedparser
+import vk_requests
 
 
 class Post:
@@ -44,3 +45,23 @@ class Yandex(Source):
                 # print(time.mktime(self.last_updated), time.mktime(post.timestamp))
                 if time.mktime(self.last_updated) < time.mktime(post.timestamp):
                     self.posts.append(post)
+
+
+class Vk(Source):
+    def __init__(self, app, name, group_alias, last_updated=0):
+        super().__init__(name, last_updated)
+        self.app = app
+        self.alias = group_alias
+
+        api = vk_requests.create_api(service_token=app.VK_TOKEN)
+
+        # TODO : Implement offset parameter
+        # https://vk.com/dev/wall.get
+        posts = api.wall.get(domain=self.alias, count=5)
+        for item in posts['items']:
+            post = Post()
+            # TODO : Implement parse text to title / url / etc
+            post.title = item['text']
+            post.timestamp = time.localtime(item['date'])
+            if time.mktime(self.last_updated) < time.mktime(post.timestamp):
+                self.posts.append(post)
