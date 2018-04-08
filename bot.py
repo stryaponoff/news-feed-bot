@@ -1,17 +1,24 @@
 #!/usr/bin/python3
 
 import logging
+import json
 from telegram.ext import Updater, CommandHandler
-
-# TODO: Implement loading from config
-API_TOKEN = ''
-CHANNEL_NAME = ''
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+# Load settings from config file
+f_config = open('config.json', 'r')
+try:
+    config = json.loads(f_config.read())
+    API_TOKEN = config['token']
+    CHANNEL_NAME = config['channel_name']
+    f_config.close()
+except json.JSONDecodeError:
+    logger.fatal('JSON decode error in config.json')
 
 
 def start(bot, update):
