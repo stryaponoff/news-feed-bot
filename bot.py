@@ -5,7 +5,7 @@ import json
 import time
 import Source
 from telegram.ext import Updater, CommandHandler
-import telegram.parsemode
+from telegram.parsemode import ParseMode
 
 
 def read_time():
@@ -86,13 +86,14 @@ def main():
     # Set last updated timestamp from file or from current time
     last_updated = read_time()
     if not last_updated:
-        last_updated = write_time()
+        # last_updated = write_time()
+        last_updated = time.localtime()
 
     kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)
     for post in kvnews.posts:
         updater.bot.send_message(chat_id=CHANNEL_NAME,
-                                 text=f'"{kvnews.name}":\n *{post.title}*\n\n_Источник:_ {post.url}',
-                                 parse_mode=telegram.ParseMode.MARKDOWN)
+                                 text=f'*{post.title}*\n\n_Источник:_ «{kvnews.name}»\n{post.url}',
+                                 parse_mode=ParseMode.MARKDOWN)
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
