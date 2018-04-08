@@ -2,7 +2,36 @@
 
 import logging
 import json
+import time
+import Source
 from telegram.ext import Updater, CommandHandler
+import telegram.parsemode
+
+
+def read_time():
+    """ Read last updated timestamp from file """
+    try:
+        f = open('last_updated', 'r')
+        the_time = time.localtime(float(f.read()))
+        f.close()
+    except Exception:
+        return False
+
+    return the_time
+
+
+def write_time():
+    """ Write last updated timestamp to file """
+    try:
+        the_time = time.localtime()
+        f = open('last_updated', 'w')
+        f.write(str(time.mktime(the_time)))
+        f.close()
+    except Exception:
+        return False
+
+    return the_time
+
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -54,7 +83,16 @@ def main():
     # Start the Bot
     updater.start_polling()
 
-    updater.bot.send_message(chat_id=CHANNEL_NAME, text='Я родился!')
+    # Set last updated timestamp from file or from current time
+    last_updated = read_time()
+    if not last_updated:
+        last_updated = write_time()
+
+    kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)
+    for post in kvnews.posts:
+        updater.bot.send_message(chat_id=CHANNEL_NAME,
+                                 text=f'"{kvnews.name}":\n *{post.title}*\n\n_Источник:_ {post.url}',
+                                 parse_mode=telegram.ParseMode.MARKDOWN)
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

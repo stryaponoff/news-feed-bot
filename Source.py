@@ -12,18 +12,20 @@ class Post:
 
 class Source:
     """ Base class for news sources """
+    name = None
     error = None
     source_url = None
     last_updated = None
     posts = []
 
-    def __init__(self, last_updated):
+    def __init__(self, name, last_updated):
+        self.name = name
         self.last_updated = last_updated
 
 
 class Yandex(Source):
-    def __init__(self, src_url, last_updated=0):
-        super().__init__(last_updated)
+    def __init__(self, name, src_url, last_updated=0):
+        super().__init__(name, last_updated)
         self.source_url = src_url
 
         rss = feedparser.parse(src_url)
