@@ -75,7 +75,6 @@ class Bk55(Vk):
 
         for post in self.posts:
             matches = re.search(self.regex, post.title).groupdict()
-            print(post.title, matches)
             if matches['title']:
                 post.title = matches['title']
             if matches['url']:
