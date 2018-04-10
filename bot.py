@@ -94,7 +94,7 @@ def main():
     app = App('config.json')
 
     # Create the Updater and pass it your bot's token.
-    updater = Updater(app.API_TOKEN)
+    updater = Updater(app.API_TOKEN, request_kwargs={'read_timeout': 30, 'connect_timeout': 10})
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -105,6 +105,9 @@ def main():
 
     # log all errors
     dp.add_error_handler(error)
+
+    # init post queue
+    queue = []
 
     # Start the Bot
     updater.start_polling()
@@ -117,17 +120,22 @@ def main():
 
     vktest = Source.Bk55(app, 'БК55', 'bk55ru', last_updated)
     for post in vktest.posts:
-        updater.bot.send_message(chat_id=app.CHANNEL_NAME,
-                                 text=f'{post.title}\n\n_Источник:_ «{vktest.name}»\n{post.url}',
-                                 parse_mode=ParseMode.MARKDOWN)
+        queue.append(post)
 
     kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)
     for post in kvnews.posts:
-        updater.bot.send_message(chat_id=app.CHANNEL_NAME,
-                                 text=f'*{post.title}*\n\n_Источник:_ «{kvnews.name}»\n{post.url}',
-                                 parse_mode=ParseMode.MARKDOWN)
+        queue.append(post)
 
-    # TODO: Implement single posts queue for send
+    # Sending messages from queue
+    while queue:
+        post = queue.pop(0)
+        result = updater.bot.send_message(chat_id=app.CHANNEL_NAME,
+                                          text=f'{post.title}\n\n_Источник:_ «{post.source_name}»\n{post.url}',
+                                          parse_mode=ParseMode.MARKDOWN)
+        if result['message_id']:
+            logger.info(f'Message sent, id = {result["message_id"]}')
+        else:
+            logger.error(f'Message sending error. Telegram return this: {result}')
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

@@ -5,6 +5,7 @@ import re
 
 
 class Post:
+    source_name = None
     timestamp = None
     title = None
     summary = None
@@ -38,6 +39,7 @@ class Yandex(Source):
         if not self.error:
             for entry in rss['entries']:
                 post = Post()
+                post.source_name = self.name
                 post.title = entry['title']
                 post.summary = entry['summary']
                 post.full_text = entry['yandex_full-text']
@@ -61,6 +63,7 @@ class Vk(Source):
         posts = api.wall.get(domain=self.alias, count=5)
         for item in posts['items']:
             post = Post()
+            post.source_name = self.name
             post.title = item['text']
             post.timestamp = time.localtime(item['date'])
             if time.mktime(self.last_updated) < time.mktime(post.timestamp):
