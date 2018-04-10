@@ -115,10 +115,10 @@ def main():
         # last_updated = write_time()
         last_updated = time.localtime()
 
-    vktest = Source.Vk(app, 'БК55', 'bk55ru', last_updated)
+    vktest = Source.Bk55(app, 'БК55', 'bk55ru', last_updated)
     for post in vktest.posts:
         updater.bot.send_message(chat_id=app.CHANNEL_NAME,
-                                 text=f'*{post.title}*\n\n_Источник:_ «{vktest.name}»\n{post.url}',
+                                 text=f'{post.title}\n\n_Источник:_ «{vktest.name}»\n{post.url}',
                                  parse_mode=ParseMode.MARKDOWN)
 
     kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)

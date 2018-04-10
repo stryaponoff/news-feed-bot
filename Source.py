@@ -1,6 +1,7 @@
 import time
 import feedparser
 import vk_requests
+import re
 
 
 class Post:
@@ -60,8 +61,22 @@ class Vk(Source):
         posts = api.wall.get(domain=self.alias, count=5)
         for item in posts['items']:
             post = Post()
-            # TODO : Implement parse text to title / url / etc
             post.title = item['text']
             post.timestamp = time.localtime(item['date'])
             if time.mktime(self.last_updated) < time.mktime(post.timestamp):
                 self.posts.append(post)
+
+
+class Bk55(Vk):
+    regex = re.compile(r'^(?P<title>.*?)$(?:\n)+^(?P<url>.*?)$', re.MULTILINE)
+
+    def __init__(self, app, name, group_alias, last_updated=0):
+        super().__init__(app, name, group_alias, last_updated)
+
+        for post in self.posts:
+            matches = re.search(self.regex, post.title).groupdict()
+            print(post.title, matches)
+            if matches['title']:
+                post.title = matches['title']
+            if matches['url']:
+                post.url = matches['url']
