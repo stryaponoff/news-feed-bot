@@ -1,4 +1,5 @@
 import time
+import calendar
 import feedparser
 import vk_requests
 import re
@@ -46,7 +47,7 @@ class Rss(Source):
                 post.timestamp = entry['published_parsed']
                 if yandex_format:
                     post.full_text = entry['yandex_full-text']
-                if time.mktime(self.last_updated) < time.mktime(post.timestamp):
+                if time.mktime(self.last_updated) < calendar.timegm(post.timestamp):
                     self.posts.append(post)
 
 
