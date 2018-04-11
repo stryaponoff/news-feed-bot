@@ -75,13 +75,7 @@ logger = logging.getLogger(__name__)
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
-
-def help(bot, update):
-    """Send a message when the command /help is issued."""
-    logger.info(update)
-    update.message.reply_text('Help!')
+    update.message.reply_text('Привет!')
 
 
 def error(bot, update, error):
@@ -101,7 +95,6 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
 
     # log all errors
     dp.add_error_handler(error)
