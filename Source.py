@@ -26,8 +26,8 @@ class Source:
         self.last_updated = last_updated
 
 
-class Yandex(Source):
-    def __init__(self, name, src_url, last_updated=0):
+class Rss(Source):
+    def __init__(self, name, src_url, last_updated=0, yandex_format=False):
         super().__init__(name, last_updated)
         self.source_url = src_url
 
@@ -42,10 +42,10 @@ class Yandex(Source):
                 post.source_name = self.name
                 post.title = entry['title']
                 post.summary = entry['summary']
-                post.full_text = entry['yandex_full-text']
                 post.url = entry['link']
                 post.timestamp = entry['published_parsed']
-                # print(time.mktime(self.last_updated), time.mktime(post.timestamp))
+                if yandex_format:
+                    post.full_text = entry['yandex_full-text']
                 if time.mktime(self.last_updated) < time.mktime(post.timestamp):
                     self.posts.append(post)
 
