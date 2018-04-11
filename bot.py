@@ -111,13 +111,16 @@ def main():
         # last_updated = write_time()
         last_updated = time.localtime()
 
-    om1 = Source.Om1(app, 'Om1', 'portal_om1', last_updated)
-    for post in om1.posts:
-        queue.append(post)
-
-    kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)
-    for post in kvnews.posts:
-        queue.append(post)
+    sources = [
+        Source.Rss('Омск-Информ', 'http://www.omskinform.ru/rss/news.rss', last_updated),
+        Source.Rss('Город55', 'https://gorod55.ru/rss', last_updated, True),
+        Source.Rss('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated, True),
+        Source.Rss('БК55', 'http://bk55.ru/news.rss', last_updated),
+        Source.Om1(app, 'Om1', 'portal_om1', last_updated),
+    ]
+    for source in sources:
+        for post in source.posts:
+            queue.append(post)
 
     # Sending messages from queue
     while queue:
