@@ -55,6 +55,7 @@ class Vk(Source):
         super().__init__(name, last_updated)
         self.app = app
         self.alias = group_alias
+        self.posts = []
 
         api = vk_requests.create_api(service_token=app.VK_TOKEN)
 
