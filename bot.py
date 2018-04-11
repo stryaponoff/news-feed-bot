@@ -118,8 +118,8 @@ def main():
         # last_updated = write_time()
         last_updated = time.localtime()
 
-    vktest = Source.Bk55(app, 'БК55', 'bk55ru', last_updated)
-    for post in vktest.posts:
+    om1 = Source.Om1(app, 'Om1', 'portal_om1', last_updated)
+    for post in om1.posts:
         queue.append(post)
 
     kvnews = Source.Yandex('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated)

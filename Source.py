@@ -82,3 +82,19 @@ class Bk55(Vk):
                 post.title = matches['title']
             if matches['url']:
                 post.url = matches['url']
+
+class Om1(Vk):
+    regex = re.compile(r'^(?P<title>.*?)$(?:\n)+^(?:(?P<summary>.*?)$(?:\n)+)?^(?P<url>.*?$)', re.MULTILINE)
+
+    def __init__(self, app, name, group_alias, last_updated=0):
+        super().__init__(app, name, group_alias, last_updated)
+
+        for post in self.posts:
+            matches = re.search(self.regex, post.title).groupdict()
+            if matches['title']:
+                post.title = matches['title']
+            if matches['summary']:
+                post.summary = matches['summary']
+            if matches['url']:
+                post.url = matches['url']
+
