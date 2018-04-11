@@ -67,6 +67,7 @@ class Vk(Source):
             post = Post()
             post.source_name = self.name
             post.title = item['text']
+            post.url = f'https://vk.com/{group_alias}?w=wall{item["from_id"]}_{item["id"]}'
             post.timestamp = time.localtime(item['date'])
             if time.mktime(self.last_updated) < time.mktime(post.timestamp):
                 self.posts.append(post)
