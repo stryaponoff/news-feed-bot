@@ -119,15 +119,19 @@ def main():
         Source.Om1(app, 'Om1', 'portal_om1', last_updated),
     ]
     for source in sources:
-        for post in source.posts:
+        # reverse for chronological representation (newest lower)
+        for post in reversed(source.posts):
             queue.append(post)
 
     # Sending messages from queue
     while queue:
         post = queue.pop(0)
-        result = updater.bot.send_message(chat_id=app.CHANNEL_NAME,
-                                          text=f'{post.title}\n\n_Источник:_ «{post.source_name}»\n{post.url}',
-                                          parse_mode=ParseMode.MARKDOWN)
+        message_text = f'{post.title}\n\n_Источник:_ «{post.source_name}»'
+        if post.url:
+            # escaping underlines for correct representation with Markdown
+            message_text += f'\n{post.url}'.replace('_', '\\_')
+        result = updater.bot.send_message(chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
+
         if result['message_id']:
             logger.info(f'Message sent, id = {result["message_id"]}')
         else:
