@@ -116,7 +116,14 @@ def main():
         Source.Rss('Город55', 'https://gorod55.ru/rss', last_updated, True),
         Source.Rss('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated, True),
         Source.Rss('БК55', 'http://bk55.ru/news.rss', last_updated),
+        Source.Rss('ОмскЗдесь', 'https://omskzdes.ru/rss/', last_updated),
+        Source.Rss('НГС.ОМСК', 'http://news.ngs55.ru/rss/', last_updated, True),
+        Source.Rss('Новый Омск', 'https://newsomsk.ru/rss.php', last_updated),
+        Source.Rss('Омскпресс', 'http://omskpress.ru/rss.php', last_updated),
+        Source.Rss('АиФ в Омске', 'http://www.omsk.aif.ru/rss/all.php', last_updated, True),
+        Source.Rss('ОмскРегион', 'http://omskregion.info/rss.xml', last_updated),
         Source.Om1(app, 'Om1', 'portal_om1', last_updated),
+        Source.Vk(app, '12 канал', 'gtrk_omsk', last_updated),
     ]
     for source in sources:
         # reverse for chronological representation (newest lower)
