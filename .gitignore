@@ -3,3 +3,4 @@ venv
 console.log
 last_updated
 config.json
+logfile.log*

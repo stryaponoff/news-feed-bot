@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 
 import logging
+import logging.handlers
 import json
 import time
 import Source
 from telegram.ext import Updater, CommandHandler
 from telegram.parsemode import ParseMode
+import telegram.error
 
 
 def singleton(class_):
@@ -39,6 +41,9 @@ class App:
         except json.JSONDecodeError:
             logger.fatal('JSON decode error in config.json')
             exit()
+        except AttributeError as e:
+            logger.fatal(str(e))
+            exit()
 
 
 def read_time():
@@ -67,10 +72,15 @@ def write_time():
 
 
 # Enable logging
+LOG_FILENAME = 'logfile.log'
+LOG_SIZE_BYTES = 1E6
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-
 logger = logging.getLogger(__name__)
+log_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=LOG_SIZE_BYTES, backupCount=5)
+log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(log_formatter)
+logger.addHandler(log_handler)
 
 
 def start(bot, update):
@@ -137,12 +147,16 @@ def main():
         if post.url:
             # escaping underlines for correct representation with Markdown
             message_text += f'\n{post.url}'.replace('_', '\\_')
-        result = updater.bot.send_message(chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
+        try:
+            result = updater.bot.send_message(
+                chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
 
-        if result['message_id']:
-            logger.info(f'Message sent, id = {result["message_id"]}')
-        else:
-            logger.error(f'Message sending error. Telegram return this: {result}')
+            if result['message_id']:
+                logger.info(f'Message sent, id = {result["message_id"]}')
+            else:
+                logger.error(f'Message sending error. Telegram return this: {result}')
+        except telegram.error.BadRequest as e:
+            logger.fatal(str(e))
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
