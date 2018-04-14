@@ -80,6 +80,8 @@ class Vk(Source):
         else:
             posts = api.wall.get(owner_id=self.owner_id, count=5)
         for item in posts['items']:
+            if item['marked_as_ads'] > 0:
+                continue
             post = Post()
             post.source_name = self.name
             post.title = item['text']
