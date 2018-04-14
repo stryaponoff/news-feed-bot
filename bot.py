@@ -157,6 +157,8 @@ def main():
         while True:
             logger.info('Fetching new posts...')
             for source in sources:
+                source.fetch(last_updated)
+
                 # reverse for chronological representation (newest lower)
                 post_list = list(reversed(source.posts))
                 while post_list:
@@ -186,7 +188,7 @@ def main():
                     logger.fatal(str(e))
 
             # Writing new last_updated value to file
-            app.write_time()
+            last_updated = app.write_time()
 
             logger.info('Job finished. Sleeping for {} secs.'.format(app.SLEEP_TIME))
             time.sleep(app.SLEEP_TIME)
