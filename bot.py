@@ -144,7 +144,9 @@ def main():
     # Sending messages from queue
     while queue:
         post = queue.pop(0)
-        message_text = f'{post.title}\n\n_Источник:_ «{post.source_name}»'
+        title = post.title.replace('_', '\\_')
+        title = title.replace('*', '\\*')
+        message_text = f'{title}\n\n_Источник:_ «{post.source_name}»'
         if post.url:
             # escaping underlines for correct representation with Markdown
             message_text += f'\n{post.url}'.replace('_', '\\_')
