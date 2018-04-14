@@ -1,14 +1,10 @@
 import time
 import calendar
 import feedparser
-import vk_requests
 import re
 import logging
 
 # Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.ERROR)
-
 logger = logging.getLogger(__name__)
 
 
@@ -71,12 +67,10 @@ class VkBase(Source):
         if matches:
             self.owner_id = int('-' + matches.group(1))
 
-        api = vk_requests.create_api(service_token=app.VK_TOKEN)
-
         if self.owner_id is None:
-            posts = api.wall.get(domain=self.alias, count=30)
+            posts = app.vk_api.wall.get(domain=self.alias, count=30)
         else:
-            posts = api.wall.get(owner_id=self.owner_id, count=30)
+            posts = app.vk_api.wall.get(owner_id=self.owner_id, count=30)
         for item in posts['items']:
             if item['marked_as_ads'] > 0:
                 continue

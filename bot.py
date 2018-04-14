@@ -10,6 +10,9 @@ from telegram.ext import Updater, CommandHandler
 from telegram.parsemode import ParseMode
 import telegram.error
 
+import vk_requests
+
+
 
 def singleton(class_):
     instances = {}
@@ -29,6 +32,7 @@ class App:
     API_TOKEN = None
     VK_TOKEN = None
     CHANNEL_NAME = None
+    vk_api = None
 
     def __init__(self, config_path):
         """ Load settings from config file """
@@ -38,6 +42,7 @@ class App:
             self.API_TOKEN = config['token']
             self.VK_TOKEN = config['vk_token']
             self.CHANNEL_NAME = config['channel_name']
+            self.vk_api = vk_requests.create_api(service_token=self.VK_TOKEN, http_params={'timeout': 30})
             f_config.close()
         except json.JSONDecodeError:
             logger.fatal('JSON decode error in config.json')
@@ -136,6 +141,7 @@ def main():
         Source.Rss('ВОмске', 'http://vomske.ru/rss/', last_updated),
         Source.Mk(app, 'Московский комсомолец', 'club95760059', last_updated),
         Source.Vk(app, 'Подслушано в Омске', 'podsluhano_omsk', last_updated),
+        Source.VkLinks(app, 'Вечерний Омск', 'club21276594', last_updated),
         Source.Vk(app, 'Реальный Омск', 'real_0msk', last_updated),
         Source.Vk(app, 'Омск Online', 'omsk_online', last_updated),
         Source.Vk(app, 'Типичный Омск', 'omskpub', last_updated),
