@@ -134,6 +134,7 @@ def main():
         Source.Rss('ОмскРегион', 'http://omskregion.info/rss.xml', last_updated),
         Source.Om1(app, 'Om1', 'portal_om1', last_updated),
         Source.Vk(app, '12 канал', 'gtrk_omsk', last_updated),
+        Source.Mk(app, 'Московский комсомолец', 'club95760059'),
     ]
     for source in sources:
         # reverse for chronological representation (newest lower)

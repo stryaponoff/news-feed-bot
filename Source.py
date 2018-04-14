@@ -87,3 +87,14 @@ class Om1(Vk):
                 post.summary = matches['summary']
             if matches['url']:
                 post.url = matches['url']
+class Mk(Vk):
+    def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
+        super().__init__(app, name, group_alias, last_updated)
+
+        for post in self.posts:
+            lines = list(filter(lambda x: x != '', post.title.split('\n')))
+            post.title = lines[0]
+            if lines[1]:
+                post.url = lines[1]
+            if lines[2]:
+                post.summary = lines[2]
