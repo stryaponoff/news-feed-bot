@@ -28,7 +28,7 @@ class Source:
 
 
 class Rss(Source):
-    def __init__(self, name, src_url, last_updated=0, yandex_format=False):
+    def __init__(self, name, src_url, last_updated=time.localtime(0), yandex_format=False):
         super().__init__(name, last_updated)
         self.source_url = src_url
 
@@ -52,7 +52,7 @@ class Rss(Source):
 
 
 class Vk(Source):
-    def __init__(self, app, name, group_alias, last_updated=0):
+    def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
         super().__init__(name, last_updated)
         self.app = app
         self.alias = group_alias
@@ -76,7 +76,7 @@ class Vk(Source):
 class Om1(Vk):
     regex = re.compile(r'^(?P<title>.*?)$(?:\n)+^(?:(?P<summary>.*?)$(?:\n)+)?^(?P<url>.*?$)', re.MULTILINE)
 
-    def __init__(self, app, name, group_alias, last_updated=0):
+    def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
         super().__init__(app, name, group_alias, last_updated)
 
         for post in self.posts:
