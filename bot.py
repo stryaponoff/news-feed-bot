@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 
-import logging
-import logging.handlers
-import json
-import time
 import calendar
-import Source
+import json
+import logging.handlers
+import time
+
+import telegram.error
 from telegram.ext import Updater, CommandHandler
 from telegram.parsemode import ParseMode
-import telegram.error
 
 import vk_requests
 
+import Source
 
 
 def singleton(class_):
@@ -32,6 +32,7 @@ class App:
     API_TOKEN = None
     VK_TOKEN = None
     CHANNEL_NAME = None
+    SLEEP_TIME = None
     vk_api = None
 
     def __init__(self, config_path):
@@ -42,6 +43,7 @@ class App:
             self.API_TOKEN = config['token']
             self.VK_TOKEN = config['vk_token']
             self.CHANNEL_NAME = config['channel_name']
+            self.SLEEP_TIME = config['fetch_frequency']
             self.vk_api = vk_requests.create_api(service_token=self.VK_TOKEN, http_params={'timeout': 30})
             f_config.close()
         except json.JSONDecodeError:
@@ -51,35 +53,33 @@ class App:
             logger.fatal(str(e))
             exit()
 
+    def read_time(self):
+        """ Read last updated timestamp from file """
+        try:
+            f = open('last_updated', 'r')
+            the_time = time.gmtime(float(f.read()))
+            f.close()
+        except Exception:
+            return False
 
-def read_time():
-    """ Read last updated timestamp from file """
-    try:
-        f = open('last_updated', 'r')
-        the_time = time.gmtime(float(f.read()))
-        f.close()
-    except Exception:
-        return False
+        return the_time
 
-    return the_time
+    def write_time(self):
+        """ Write last updated timestamp to file """
+        try:
+            the_time = time.gmtime()
+            f = open('last_updated', 'w')
+            f.write(str(calendar.timegm(the_time)))
+            f.close()
+        except Exception:
+            return False
 
-
-def write_time():
-    """ Write last updated timestamp to file """
-    try:
-        the_time = time.gmtime()
-        f = open('last_updated', 'w')
-        f.write(str(calendar.timegm(the_time)))
-        f.close()
-    except Exception:
-        return False
-
-    return the_time
+        return the_time
 
 
 # Enable logging
 LOG_FILENAME = 'logfile.log'
-LOG_SIZE_BYTES = 1E6
+LOG_SIZE_BYTES = 1E8
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -104,7 +104,7 @@ def main():
     app = App('config.json')
 
     # Create the Updater and pass it your bot's token.
-    updater = Updater(app.API_TOKEN, request_kwargs={'read_timeout': 30, 'connect_timeout': 10})
+    updater = Updater(app.API_TOKEN, request_kwargs={'read_timeout': 60, 'connect_timeout': 15})
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -122,9 +122,9 @@ def main():
     updater.start_polling()
 
     # Set last updated timestamp from file or from current time
-    last_updated = read_time()
+    last_updated = app.read_time()
     if not last_updated:
-        last_updated = write_time()
+        last_updated = app.write_time()
 
     sources = [
         Source.Rss('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated, True),
@@ -148,41 +148,53 @@ def main():
         Source.Vk(app, 'Ищу тебя Омск', 'ishu55', last_updated),
         Source.Vk(app, 'Омск Live', 'omsk_live', last_updated),
         Source.Vk(app, '12 канал', 'gtrk_omsk', last_updated),
-        Source.VkLinks(app, 'Вечерний Омск', 'club21276594'),
         Source.Om1(app, 'Om1', 'portal_om1', last_updated),
+        Source.Vk(app, 'ЧП Омск', 'chp55', last_updated),
     ]
-    for source in sources:
-        # reverse for chronological representation (newest lower)
-        for post in reversed(source.posts):
-            queue.append(post)
 
-    # Writing new last_updated value to file
-    write_time()
+    try:
+        logging.info('Starting bot...')
+        while True:
+            logger.info('Fetching new posts...')
+            for source in sources:
+                # reverse for chronological representation (newest lower)
+                for post in reversed(source.posts):
+                    queue.append(post)
 
-    # Sending messages from queue
-    while queue:
-        post = queue.pop(0)
-        title = post.title.replace('_', '\\_')
-        title = title.replace('*', '\\*')
-        message_text = f'{title}\n\n_Источник:_ «{post.source_name}»'
-        if post.url:
-            # escaping underlines for correct representation with Markdown
-            message_text += f'\n{post.url}'.replace('_', '\\_')
-        try:
-            result = updater.bot.send_message(
-                chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
+            if len(queue) > 0:
+                logger.info('Sending new posts...')
+            # Sending messages from queue
+            while queue:
+                post = queue.pop(0)
+                title = post.title.replace('_', '\\_')
+                title = title.replace('*', '\\*')
+                message_text = f'{title}\n\n_Источник:_ «{post.source_name}»'
+                if post.url:
+                    # escaping underlines for correct representation with Markdown
+                    message_text += f'\n{post.url}'.replace('_', '\\_')
+                try:
+                    result = updater.bot.send_message(
+                        chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
 
-            if result['message_id']:
-                logger.info(f'Message sent, id = {result["message_id"]}')
-            else:
-                logger.error(f'Message sending error. Telegram return this: {result}')
-        except telegram.error.BadRequest as e:
-            logger.fatal(str(e))
+                    if result['message_id']:
+                        logger.info(f'Message sent, id = {result["message_id"]}')
+                    else:
+                        logger.error(f'Message sending error. Telegram return this: {result}')
+                except telegram.error.BadRequest as e:
+                    logger.fatal(str(e))
+
+            # Writing new last_updated value to file
+            app.write_time()
+
+            logger.info(f'Job finished. Sleeping for {app.SLEEP_TIME} secs.')
+            time.sleep(app.SLEEP_TIME)
+    except KeyboardInterrupt:
+        logging.info('Stopping bot...')
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+    # updater.idle()
 
 
 if __name__ == '__main__':

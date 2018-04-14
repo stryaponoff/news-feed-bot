@@ -51,7 +51,7 @@ class Rss(Source):
                 if yandex_format:
                     if 'yandex_full-text' in entry:
                         post.full_text = entry['yandex_full-text']
-                if time.mktime(self.last_updated) < calendar.timegm(post.timestamp):
+                if self.last_updated < post.timestamp:
                     self.posts.append(post)
 
 
@@ -82,13 +82,14 @@ class Vk(VkBase):
 
     def __init__(self, app, name, group_alias, last_updated=time.gmtime(0)):
         super().__init__(app, name, group_alias, last_updated)
+        self.posts = []
         for item in self._items:
             post = Post()
             post.source_name = self.name
             post.title = item['text']
             post.url = f'https://vk.com/{group_alias}?w=wall{item["from_id"]}_{item["id"]}'
             post.timestamp = time.gmtime(item['date'])
-            if time.mktime(self.last_updated) < time.mktime(post.timestamp):
+            if self.last_updated < post.timestamp:
                 self.posts.append(post)
 
 
@@ -103,7 +104,7 @@ class VkLinks(VkBase):
             post.title = item['attachments'][0]['link']['title']
             post.url = item['attachments'][0]['link']['url']
             post.timestamp = time.gmtime(item['date'])
-            if time.mktime(self.last_updated) < time.mktime(post.timestamp):
+            if self.last_updated < post.timestamp:
                 self.posts.append(post)
 
 
