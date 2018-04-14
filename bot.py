@@ -4,6 +4,7 @@ import logging
 import logging.handlers
 import json
 import time
+import calendar
 import Source
 from telegram.ext import Updater, CommandHandler
 from telegram.parsemode import ParseMode
@@ -50,7 +51,7 @@ def read_time():
     """ Read last updated timestamp from file """
     try:
         f = open('last_updated', 'r')
-        the_time = time.localtime(float(f.read()))
+        the_time = time.gmtime(float(f.read()))
         f.close()
     except Exception:
         return False
@@ -61,9 +62,9 @@ def read_time():
 def write_time():
     """ Write last updated timestamp to file """
     try:
-        the_time = time.localtime()
+        the_time = time.gmtime()
         f = open('last_updated', 'w')
-        f.write(str(time.mktime(the_time)))
+        f.write(str(calendar.timegm(the_time)))
         f.close()
     except Exception:
         return False
@@ -118,8 +119,7 @@ def main():
     # Set last updated timestamp from file or from current time
     last_updated = read_time()
     if not last_updated:
-        # last_updated = write_time()
-        last_updated = time.localtime()
+        last_updated = write_time()
 
     sources = [
         Source.Rss('Омск-Информ', 'http://www.omskinform.ru/rss/news.rss', last_updated),
@@ -140,6 +140,9 @@ def main():
         # reverse for chronological representation (newest lower)
         for post in reversed(source.posts):
             queue.append(post)
+
+    # Writing new last_updated value to file
+    write_time()
 
     # Sending messages from queue
     while queue:
