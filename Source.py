@@ -32,7 +32,7 @@ class Source:
 
 class Rss(Source):
     posts = []
-    
+
     def __init__(self, name, src_url, last_updated=time.gmtime(0), yandex_format=False):
         super().__init__(name, last_updated)
         self.posts = []

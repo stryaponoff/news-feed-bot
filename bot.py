@@ -158,7 +158,9 @@ def main():
             logger.info('Fetching new posts...')
             for source in sources:
                 # reverse for chronological representation (newest lower)
-                for post in reversed(source.posts):
+                post_list = list(reversed(source.posts))
+                while post_list:
+                    post = post_list.pop(0)
                     queue.append(post)
 
             if len(queue) > 0:
