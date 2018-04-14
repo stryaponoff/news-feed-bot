@@ -122,19 +122,28 @@ def main():
         last_updated = write_time()
 
     sources = [
-        Source.Rss('Омск-Информ', 'http://www.omskinform.ru/rss/news.rss', last_updated),
-        Source.Rss('Город55', 'https://gorod55.ru/rss', last_updated, True),
         Source.Rss('Коммерческие вести', 'http://kvnews.ru/structure/rss/ya', last_updated, True),
-        Source.Rss('БК55', 'http://bk55.ru/news.rss', last_updated),
-        Source.Rss('ОмскЗдесь', 'https://omskzdes.ru/rss/', last_updated),
-        Source.Rss('НГС.ОМСК', 'http://news.ngs55.ru/rss/', last_updated, True),
-        Source.Rss('Новый Омск', 'https://newsomsk.ru/rss.php', last_updated),
-        Source.Rss('Омскпресс', 'http://omskpress.ru/rss.php', last_updated),
         Source.Rss('АиФ в Омске', 'http://www.omsk.aif.ru/rss/all.php', last_updated, True),
+        Source.Rss('Омск-Информ', 'http://www.omskinform.ru/rss/news.rss', last_updated),
         Source.Rss('ОмскРегион', 'http://omskregion.info/rss.xml', last_updated),
-        Source.Om1(app, 'Om1', 'portal_om1', last_updated),
+        Source.Rss('Новый Омск', 'https://newsomsk.ru/rss.php', last_updated),
+        Source.Rss('СуперОмск', 'http://superomsk.ru/rss.xml', last_updated),
+        Source.Rss('Омскпресс', 'http://omskpress.ru/rss.php', last_updated),
+        Source.Rss('Город55', 'https://gorod55.ru/rss', last_updated, True),
+        Source.Rss('ОмскЗдесь', 'https://omskzdes.ru/rss/', last_updated),
+        Source.Rss('НГС.ОМСК', 'http://news.ngs55.ru/rss/', last_updated),
+        Source.Rss('БК55', 'http://bk55.ru/news.rss', last_updated),
+        Source.Rss('ВОмске', 'http://vomske.ru/rss/', last_updated),
+        Source.Mk(app, 'Московский комсомолец', 'club95760059', last_updated),
+        Source.Vk(app, 'Подслушано в Омске', 'podsluhano_omsk', last_updated),
+        Source.Vk(app, 'Реальный Омск', 'real_0msk', last_updated),
+        Source.Vk(app, 'Омск Online', 'omsk_online', last_updated),
+        Source.Vk(app, 'Типичный Омск', 'omskpub', last_updated),
+        Source.Vk(app, 'Ищу тебя Омск', 'ishu55', last_updated),
+        Source.Vk(app, 'Омск Live', 'omsk_live', last_updated),
         Source.Vk(app, '12 канал', 'gtrk_omsk', last_updated),
-        Source.Mk(app, 'Московский комсомолец', 'club95760059'),
+        Source.VkLinks(app, 'Вечерний Омск', 'club21276594'),
+        Source.Om1(app, 'Om1', 'portal_om1', last_updated),
     ]
     for source in sources:
         # reverse for chronological representation (newest lower)
