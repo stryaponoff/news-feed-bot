@@ -73,12 +73,10 @@ class VkBase(Source):
 
         api = vk_requests.create_api(service_token=app.VK_TOKEN)
 
-        # TODO : Implement offset parameter
-        # https://vk.com/dev/wall.get
         if self.owner_id is None:
-            posts = api.wall.get(domain=self.alias, count=5)
+            posts = api.wall.get(domain=self.alias, count=30)
         else:
-            posts = api.wall.get(owner_id=self.owner_id, count=5)
+            posts = api.wall.get(owner_id=self.owner_id, count=30)
         for item in posts['items']:
             if item['marked_as_ads'] > 0:
                 continue
