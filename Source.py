@@ -59,13 +59,13 @@ class Rss(Source):
                     self.posts.append(post)
 
 
-class Vk(Source):
+class VkBase(Source):
     def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
         super().__init__(name, last_updated)
+        self._items = []
         self.app = app
         self.alias = group_alias
         self.owner_id = None
-        self.posts = []
 
         matches = re.search(r'club(\d+)', group_alias)
         if matches:
@@ -82,6 +82,15 @@ class Vk(Source):
         for item in posts['items']:
             if item['marked_as_ads'] > 0:
                 continue
+            self._items.append(item)
+
+
+class Vk(VkBase):
+    posts = []
+
+    def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
+        super().__init__(app, name, group_alias, last_updated)
+        for item in self._items:
             post = Post()
             post.source_name = self.name
             post.title = item['text']
