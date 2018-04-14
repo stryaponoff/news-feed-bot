@@ -168,25 +168,25 @@ def main():
                 post = queue.pop(0)
                 title = post.title.replace('_', '\\_')
                 title = title.replace('*', '\\*')
-                message_text = f'{title}\n\n_Источник:_ «{post.source_name}»'
+                message_text = '{}\n\n_Источник:_ «{}»'.format(title, post.source_name)
                 if post.url:
                     # escaping underlines for correct representation with Markdown
-                    message_text += f'\n{post.url}'.replace('_', '\\_')
+                    message_text += '\n{}'.format(post.url).replace('_', '\\_')
                 try:
                     result = updater.bot.send_message(
                         chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
 
                     if result['message_id']:
-                        logger.info(f'Message sent, id = {result["message_id"]}')
+                        logger.info('Message sent, id = ' + result['message_id'])
                     else:
-                        logger.error(f'Message sending error. Telegram return this: {result}')
+                        logger.error('Message sending error. Telegram returned this: ' + result)
                 except telegram.error.BadRequest as e:
                     logger.fatal(str(e))
 
             # Writing new last_updated value to file
             app.write_time()
 
-            logger.info(f'Job finished. Sleeping for {app.SLEEP_TIME} secs.')
+            logger.info('Job finished. Sleeping for {} secs.'.format(app.SLEEP_TIME))
             time.sleep(app.SLEEP_TIME)
     except KeyboardInterrupt:
         logging.info('Stopping bot...')
