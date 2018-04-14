@@ -100,6 +100,21 @@ class Vk(VkBase):
                 self.posts.append(post)
 
 
+class VkLinks(VkBase):
+    posts = []
+
+    def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
+        super().__init__(app, name, group_alias, last_updated)
+        for item in self._items:
+            post = Post()
+            post.source_name = self.name
+            post.title = item['attachments'][0]['link']['title']
+            post.url = item['attachments'][0]['link']['url']
+            post.timestamp = time.localtime(item['date'])
+            if time.mktime(self.last_updated) < time.mktime(post.timestamp):
+                self.posts.append(post)
+
+
 class Om1(Vk):
     regex = re.compile(r'^(?P<title>.*?)$(?:\n)+^(?:(?P<summary>.*?)$(?:\n)+)?^(?P<url>.*?$)', re.MULTILINE)
 
