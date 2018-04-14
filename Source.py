@@ -3,6 +3,13 @@ import calendar
 import feedparser
 import vk_requests
 import re
+import logging
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.ERROR)
+
+logger = logging.getLogger(__name__)
 
 
 class Post:
@@ -46,7 +53,8 @@ class Rss(Source):
                 post.url = entry['link']
                 post.timestamp = entry['published_parsed']
                 if yandex_format:
-                    post.full_text = entry['yandex_full-text']
+                    if 'yandex_full-text' in entry:
+                        post.full_text = entry['yandex_full-text']
                 if time.mktime(self.last_updated) < calendar.timegm(post.timestamp):
                     self.posts.append(post)
 
@@ -56,13 +64,21 @@ class Vk(Source):
         super().__init__(name, last_updated)
         self.app = app
         self.alias = group_alias
+        self.owner_id = None
         self.posts = []
+
+        matches = re.search(r'club(\d+)', group_alias)
+        if matches:
+            self.owner_id = int('-' + matches.group(1))
 
         api = vk_requests.create_api(service_token=app.VK_TOKEN)
 
         # TODO : Implement offset parameter
         # https://vk.com/dev/wall.get
-        posts = api.wall.get(domain=self.alias, count=5)
+        if self.owner_id is None:
+            posts = api.wall.get(domain=self.alias, count=5)
+        else:
+            posts = api.wall.get(owner_id=self.owner_id, count=5)
         for item in posts['items']:
             post = Post()
             post.source_name = self.name
@@ -80,13 +96,18 @@ class Om1(Vk):
         super().__init__(app, name, group_alias, last_updated)
 
         for post in self.posts:
-            matches = re.search(self.regex, post.title).groupdict()
-            if matches['title']:
-                post.title = matches['title']
-            if matches['summary']:
-                post.summary = matches['summary']
-            if matches['url']:
-                post.url = matches['url']
+            try:
+                matches = re.search(self.regex, post.title).groupdict()
+                if matches['title']:
+                    post.title = matches['title']
+                if matches['summary']:
+                    post.summary = matches['summary']
+                if matches['url']:
+                    post.url = matches['url']
+            except AttributeError as e:
+                logger.error(str(e) + ' ' + post.title)
+
+
 class Mk(Vk):
     def __init__(self, app, name, group_alias, last_updated=time.localtime(0)):
         super().__init__(app, name, group_alias, last_updated)
