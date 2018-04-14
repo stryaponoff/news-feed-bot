@@ -177,7 +177,7 @@ def main():
                         chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
 
                     if result['message_id']:
-                        logger.info('Message sent, id = ' + result['message_id'])
+                        logger.info('Message sent, id = ' + str(result['message_id']))
                     else:
                         logger.error('Message sending error. Telegram returned this: ' + result)
                 except telegram.error.BadRequest as e:
