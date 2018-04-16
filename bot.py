@@ -152,7 +152,6 @@ def main():
         Source.Vk(app, 'Реальный Омск', 'real_0msk', last_updated),
         Source.Vk(app, 'Омск Online', 'omsk_online', last_updated),
         Source.Vk(app, 'Типичный Омск', 'omskpub', last_updated),
-        Source.Vk(app, 'Ищу тебя Омск', 'ishu55', last_updated),
         Source.Vk(app, 'Омск Live', 'omsk_live', last_updated),
         Source.Vk(app, '12 канал', 'gtrk_omsk', last_updated),
         Source.Om1(app, 'Om1', 'portal_om1', last_updated),
