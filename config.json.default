@@ -3,5 +3,7 @@
   "vk_token": "VK.COM-APP-TOKEN",
   "channel_name": "@channel_name",
   "fetch_frequency": 120,
-  "proxy_url": "socks5://localhost:1234"
+  "proxy_url": "socks5://localhost:1234",
+  "proxy_username": "user",
+  "proxy_password": "pass"
 }

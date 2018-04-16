@@ -35,6 +35,8 @@ class App:
     CHANNEL_NAME = None
     SLEEP_TIME = None
     PROXY_URL = None
+    PROXY_USERNAME = None
+    PROXY_PASSWORD = None
     vk_api = None
 
     def __init__(self, config_path):
@@ -47,6 +49,8 @@ class App:
             self.CHANNEL_NAME = config['channel_name']
             self.SLEEP_TIME = config['fetch_frequency']
             self.PROXY_URL = config['proxy_url']
+            self.PROXY_USERNAME = config['proxy_username']
+            self.PROXY_PASSWORD = config['proxy_password']
             self.vk_api = vk_requests.create_api(service_token=self.VK_TOKEN, http_params={'timeout': 30})
             f_config.close()
         except json.JSONDecodeError:
@@ -111,6 +115,10 @@ def main():
         'read_timeout': 60,
         'connect_timeout': 15,
         'proxy_url': app.PROXY_URL,
+        'urllib3_proxy_kwargs': {
+            'username': app.PROXY_USERNAME,
+            'password': app.PROXY_PASSWORD,
+        }
     })
 
     # Get the dispatcher to register handlers
