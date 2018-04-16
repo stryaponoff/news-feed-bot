@@ -57,7 +57,7 @@ class App:
     def read_time(self):
         """ Read last updated timestamp from file """
         try:
-            f = open(os.path.dirname(__file__) + 'last_updated', 'r')
+            f = open(os.path.dirname(__file__) + '/last_updated', 'r')
             the_time = time.gmtime(float(f.read()))
             f.close()
         except Exception:
@@ -69,7 +69,7 @@ class App:
         """ Write last updated timestamp to file """
         try:
             the_time = time.gmtime()
-            f = open(os.path.dirname(__file__) + 'last_updated', 'w')
+            f = open(os.path.dirname(__file__) + '/last_updated', 'w')
             f.write(str(calendar.timegm(the_time)))
             f.close()
         except Exception:
@@ -79,7 +79,7 @@ class App:
 
 
 # Enable logging
-LOG_FILENAME = os.path.dirname(__file__) + 'logfile.log'
+LOG_FILENAME = os.path.dirname(__file__) + '/logfile.log'
 LOG_SIZE_BYTES = 1E8
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -102,7 +102,7 @@ def error(bot, update, error):
 
 def main():
     # Create an App instance
-    app = App(os.path.dirname(__file__) + 'config.json')
+    app = App(os.path.dirname(__file__) + '/config.json')
 
     # Create the Updater and pass it your bot's token.
     updater = Updater(app.API_TOKEN, request_kwargs={'read_timeout': 60, 'connect_timeout': 15})
