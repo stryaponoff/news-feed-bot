@@ -34,6 +34,7 @@ class App:
     VK_TOKEN = None
     CHANNEL_NAME = None
     SLEEP_TIME = None
+    PROXY_URL = None
     vk_api = None
 
     def __init__(self, config_path):
@@ -45,6 +46,7 @@ class App:
             self.VK_TOKEN = config['vk_token']
             self.CHANNEL_NAME = config['channel_name']
             self.SLEEP_TIME = config['fetch_frequency']
+            self.PROXY_URL = config['proxy_url']
             self.vk_api = vk_requests.create_api(service_token=self.VK_TOKEN, http_params={'timeout': 30})
             f_config.close()
         except json.JSONDecodeError:
@@ -105,7 +107,11 @@ def main():
     app = App(os.path.dirname(__file__) + '/config.json')
 
     # Create the Updater and pass it your bot's token.
-    updater = Updater(app.API_TOKEN, request_kwargs={'read_timeout': 60, 'connect_timeout': 15})
+    updater = Updater(app.API_TOKEN, request_kwargs={
+        'read_timeout': 60,
+        'connect_timeout': 15,
+        'proxy_url': app.PROXY_URL,
+    })
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
