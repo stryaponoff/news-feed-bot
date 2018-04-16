@@ -3,6 +3,7 @@ import calendar
 import feedparser
 import re
 import logging
+import vk_requests.exceptions
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -80,10 +81,17 @@ class VkBase(Source):
         super().fetch(last_updated)
         self._items = []
 
-        if self.owner_id is None:
-            posts = self.app.vk_api.wall.get(domain=self.alias, count=30)
-        else:
-            posts = self.app.vk_api.wall.get(owner_id=self.owner_id, count=30)
+        try:
+            if self.owner_id is None:
+                posts = self.app.vk_api.wall.get(domain=self.alias, count=30)
+            else:
+                posts = self.app.vk_api.wall.get(owner_id=self.owner_id, count=30)
+        except vk_requests.exceptions.VkAPIError as e:
+            logger.error(str(e))
+            return
+
+        time.sleep(0.4)
+
         for item in posts['items']:
             if item['marked_as_ads'] > 0:
                 continue
