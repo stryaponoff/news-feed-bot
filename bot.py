@@ -169,7 +169,10 @@ def main():
         while True:
             logger.info('Fetching new posts...')
             for source in sources:
-                source.fetch(last_updated)
+                try:
+                    source.fetch(last_updated)
+                except KeyError:
+                    continue
 
                 # reverse for chronological representation (newest lower)
                 post_list = list(reversed(source.posts))
