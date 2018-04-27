@@ -55,7 +55,7 @@ class Rss(Source):
                 post = Post()
                 post.source_name = self.name
                 post.title = entry['title']
-                post.url = entry['link']
+                post.url = entry['links'][0]['href']
                 post.timestamp = entry['published_parsed']
                 if self.yandex:
                     if 'yandex_full-text' in entry:
