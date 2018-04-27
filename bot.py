@@ -184,31 +184,32 @@ def main():
 
             if len(queue) > 0:
                 logger.info('Sending new posts...')
+                
             # Sending messages from queue
-            # while queue:
-            #     post = queue.pop(0)
-            #     title = post.title.replace('_', '\\_')
-            #     title = title.replace('*', '\\*')
-            #     message_text = '{}\n\n_Источник:_ «{}»'.format(title, post.source_name)
-            #     if post.url:
-            #         # escaping underlines for correct representation with Markdown
-            #         message_text += '\n{}'.format(post.url).replace('_', '\\_')
-            #     try:
-            #         result = updater.bot.send_message(
-            #             chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
-            #
-            #         if result['message_id']:
-            #             logger.info('Message sent, id = ' + str(result['message_id']))
-            #         else:
-            #             logger.error('Message sending error. Telegram returned this: ' + result)
-            #     except telegram.error.BadRequest as e:
-            #         logger.fatal(str(e))
-            #
-            # # Writing new last_updated value to file
-            # last_updated = app.write_time()
-            #
-            # logger.info('Job finished. Sleeping for {} secs.'.format(app.SLEEP_TIME))
-            # time.sleep(app.SLEEP_TIME)
+            while queue:
+                post = queue.pop(0)
+                title = post.title.replace('_', '\\_')
+                title = title.replace('*', '\\*')
+                message_text = '{}\n\n_Источник:_ «{}»'.format(title, post.source_name)
+                if post.url:
+                    # escaping underlines for correct representation with Markdown
+                    message_text += '\n{}'.format(post.url).replace('_', '\\_')
+                try:
+                    result = updater.bot.send_message(
+                        chat_id=app.CHANNEL_NAME, text=message_text, parse_mode=ParseMode.MARKDOWN)
+
+                    if result['message_id']:
+                        logger.info('Message sent, id = ' + str(result['message_id']))
+                    else:
+                        logger.error('Message sending error. Telegram returned this: ' + result)
+                except telegram.error.BadRequest as e:
+                    logger.fatal(str(e))
+
+            # Writing new last_updated value to file
+            last_updated = app.write_time()
+
+            logger.info('Job finished. Sleeping for {} secs.'.format(app.SLEEP_TIME))
+            time.sleep(app.SLEEP_TIME)
     except KeyboardInterrupt:
         logging.info('Stopping bot...')
 
