@@ -111,7 +111,6 @@ def main():
     app = App(os.path.dirname(__file__) + '/config.json')
 
     # Create the Updater and pass it your bot's token.
-
     updater = Updater(app.API_TOKEN, request_kwargs={
         'read_timeout': 60,
         'connect_timeout': 15,
@@ -155,7 +154,6 @@ def main():
         Source.Rss('НГС.ОМСК', 'http://news.ngs55.ru/rss/', last_updated),
         Source.Rss('БК55', 'http://bk55.ru/news.rss', last_updated),
         Source.Rss('ВОмске', 'http://vomske.ru/rss/', last_updated),
-        Source.Rss('Город55', 'https://gorod55.ru/rss', last_updated, True),
         Source.Mk(app, 'Московский комсомолец', 'club95760059', last_updated),
         Source.VkLinks(app, 'Вечерний Омск', 'club21276594', last_updated),
         Source.Vk(app, 'Реальный Омск', 'real_0msk', last_updated),
